@@ -83,9 +83,9 @@ npx prisma db push
 
 ```bash
 npm run dev
-# o
+# or
 yarn dev
-# o
+# or
 pnpm dev
 ```
 
