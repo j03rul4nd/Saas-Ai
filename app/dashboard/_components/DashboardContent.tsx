@@ -8,6 +8,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { extractTextFromPDF } from '@/lib/pdfUtils'
+import PromptUsageDisplay from '@/components/PromptUsageDisplay'
 
 // Tipos específicos para los elementos de formato
 type FormattedElement = ReactNode;
@@ -391,6 +392,11 @@ const formatInlineText = (text: string): (string | ReactNode)[] => {
                     </div>
                 </div>
             )}
+
+            {/* Prompt Usage Display */}
+            <div className='p-6 rounded-2xl border border-purple-300/10 bg-black/30 shadow-[0_4px_20px_-10px] shadow-purple-200/30'>
+                <PromptUsageDisplay />
+            </div>
 
             {/* File upload and analysis section */}
             <div className='p-10 space-y-8 rounded-2xl border border-purple-300/10 bg-black/30 shadow-[0_4px_20px_-10px] shadow-purple-200/30'>

@@ -2,10 +2,18 @@ import { NextResponse, NextRequest } from 'next/server'
 import { handleApiError, ApiError } from '@/lib/errors'
 import { rateLimiter } from '@/lib/rateLimiters'
 import { API, PDF_PROCESSING } from '@/lib/constants'
+import { auth } from '@clerk/nextjs/server'
+import { checkAndIncrementPromptUsage, incrementPromptUsage } from '@/lib/promptLimits'
 
 export async function POST(request: NextRequest) {
   try {
     await rateLimiter(request)
+
+    // Verificar autenticación
+    const { userId } = await auth()
+    if (!userId) {
+      throw new ApiError(401, 'No autorizado. Debes iniciar sesión para usar esta función.')
+    }
 
     const body = await request.json().catch(() => ({}))
     const { text } = body
@@ -16,6 +24,13 @@ export async function POST(request: NextRequest) {
 
     if (text.length === 0) {
       throw new ApiError(400, 'Invalid input: text cannot be empty')
+    }
+
+    // Verificar límites de prompts antes de procesar
+    const promptLimitResult = await checkAndIncrementPromptUsage(userId)
+    
+    if (!promptLimitResult.canUse) {
+      throw new ApiError(429, `Has alcanzado tu límite mensual de ${promptLimitResult.monthlyLimit} prompts. El límite se restablecerá el ${promptLimitResult.nextResetDate.toLocaleDateString('es-ES')}.`)
     }
 
     const processedText = text.substring(0, PDF_PROCESSING.MAX_TEXT_LENGTH)
@@ -93,7 +108,18 @@ export async function POST(request: NextRequest) {
       throw new ApiError(500, 'Invalid response from AI service')
     }
 
-    return NextResponse.json({ summary: data.candidates[0].content.parts[0].text })
+    // Incrementar el contador de uso solo si la API fue exitosa
+    await incrementPromptUsage(userId)
+
+    return NextResponse.json({ 
+      summary: data.candidates[0].content.parts[0].text,
+      promptUsage: {
+        remaining: promptLimitResult.remainingPrompts - 1, // -1 porque ya incrementamos
+        used: promptLimitResult.currentUsage + 1,
+        limit: promptLimitResult.monthlyLimit,
+        nextReset: promptLimitResult.nextResetDate
+      }
+    })
 
   } catch (error) {
     return handleApiError(error)

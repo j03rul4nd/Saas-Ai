@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
+import { addPromptsToLimit } from '@/lib/promptLimits'
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -55,6 +56,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     session.subscription as string
   )
 
+  // Actualizar suscripción en la base de datos
   await prisma.user.update({
     where: { stripeCustomerId: session.customer as string },
     data: {
@@ -66,6 +68,22 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       }
     }
   })
+
+  // Obtener el usuario para actualizar sus límites de prompts
+  const user = await prisma.user.findUnique({
+    where: { stripeCustomerId: session.customer as string },
+    select: { id: true }
+  })
+
+  if (user) {
+    try {
+      // Añadir 10 prompts adicionales al límite mensual
+      await addPromptsToLimit(user.id, 10)
+      console.log(`Added 10 prompts to user ${user.id} after successful checkout`)
+    } catch (error) {
+      console.error(`Error adding prompts to user ${user.id}:`, error)
+    }
+  }
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -111,6 +129,22 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
       currentPeriodEnd: new Date(firstItem.current_period_end * 1000)
     }
   })
+
+  // Obtener el usuario asociado a esta suscripción
+  const subscriptionRecord = await prisma.subscription.findUnique({
+    where: { stripeSubscriptionId: subscription.id },
+    select: { userId: true }
+  })
+
+  if (subscriptionRecord) {
+    try {
+      // Añadir 10 prompts adicionales al límite mensual por cada pago exitoso
+      await addPromptsToLimit(subscriptionRecord.userId, 10)
+      console.log(`Added 10 prompts to user ${subscriptionRecord.userId} after successful payment`)
+    } catch (error) {
+      console.error(`Error adding prompts to user ${subscriptionRecord.userId}:`, error)
+    }
+  }
 }
 
 function mapSubscriptionData(subscription: Stripe.Subscription) {
