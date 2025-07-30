@@ -94,7 +94,7 @@ export default async function Pricing() {
             customerId: databaseUser.stripeCustomerId,
             domainUrl: domainUrl,
             priceId: process.env.STRIPE_PRICE_ID as string,
-            successUrl: `${domainUrl}/dashboard?payment=success`
+            successUrl: `${domainUrl}dashboard?payment=success`
         })
 
         return redirect(subscriptionUrl)
