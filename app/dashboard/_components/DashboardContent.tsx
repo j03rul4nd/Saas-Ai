@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, ReactNode } from 'react'
+import { useState, useCallback, useEffect, ReactNode, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { 
   CheckCircle, 
@@ -8,7 +8,8 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { extractTextFromPDF } from '@/lib/pdfUtils'
-import PromptUsageDisplay from '@/components/PromptUsageDisplay'
+import PromptUsageDisplay, { PromptUsageDisplayRef } from '@/components/PromptUsageDisplay'
+import { usePromptUsage } from '@/hooks/usePromptUsage'
 
 // Tipos específicos para los elementos de formato
 type FormattedElement = ReactNode;
@@ -17,6 +18,8 @@ export default function DashboardContent() {
 
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { forceRefresh } = usePromptUsage()
+    const promptUsageRef = useRef<PromptUsageDisplayRef>(null)
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [summary, setSummary] = useState('')
@@ -82,12 +85,23 @@ export default function DashboardContent() {
              */
             //setSummary(text)
             setSummary(data.summary || 'No summary was generated.')
+            
+            // Pequeño delay para asegurar que la base de datos se haya actualizado
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            // Actualizar el componente de uso de prompts después de un análisis exitoso
+            // Usar forceRefresh para asegurar que se actualice inmediatamente
+            await Promise.all([
+                forceRefresh(),
+                promptUsageRef.current?.refresh()
+            ])
+            
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to analyze PDF.')
         } finally {
             setIsLoading(false)
         }
-    }, [selectedFile])
+    }, [selectedFile, forceRefresh])
 
 
     const formatSummaryContent = (text: string): FormattedElement[] => {
@@ -395,7 +409,7 @@ const formatInlineText = (text: string): (string | ReactNode)[] => {
 
             {/* Prompt Usage Display */}
             <div className='p-6 rounded-2xl border border-purple-300/10 bg-black/30 shadow-[0_4px_20px_-10px] shadow-purple-200/30'>
-                <PromptUsageDisplay />
+                <PromptUsageDisplay ref={promptUsageRef} />
             </div>
 
             {/* File upload and analysis section */}
