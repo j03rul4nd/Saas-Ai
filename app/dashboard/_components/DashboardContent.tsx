@@ -394,7 +394,6 @@ const formatInlineText = (text: string): (string | ReactNode)[] => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold">Dashboard Content</h1>
       {/* Add your dashboard content here */}
 
     <div className='min-h-[300vh] space-y-10 mt-24 max-w-4xl mx-auto'>

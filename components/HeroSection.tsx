@@ -66,7 +66,7 @@ const HeroSection = () => {
       };
     }
     
-    //initialAnimation();
+    initialAnimation();
     
     
     

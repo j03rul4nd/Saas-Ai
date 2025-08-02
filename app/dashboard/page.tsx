@@ -18,7 +18,6 @@ function DashboardLoading() {
 export default function Dashboard() {   
   return (     
     <div className="font-sans p-4">       
-      <h1 className="text-3xl font-bold">Dashboard</h1>       
       <Suspense fallback={<DashboardLoading />}>
         <DashboardContent />     
       </Suspense>
