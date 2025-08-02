@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { SignedIn, SignedOut, SignOutButton } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
-import { Menu, X, Home, DollarSign, LayoutDashboard, LucideIcon } from "lucide-react";
+import { FileText, Menu, X, Home, DollarSign, LayoutDashboard, LucideIcon } from "lucide-react";
 
 // Tipos para los componentes de navegación
 interface NavLinkProps {
@@ -70,7 +70,7 @@ const Navbar = () => {
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-2 group">
                 <div className="w-8 h-8 bg-gradient-to-br from-white to-neutral-300 rounded-md flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-                  <div className="w-3 h-3 bg-neutral-950 rounded-sm"></div>
+                  <FileText  className="w-4 h-4 text-neutral-950" />
                 </div>
                 <span className="text-lg font-semibold text-white tracking-tight">
                   PDF Analyzer
