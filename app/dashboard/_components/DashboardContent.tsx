@@ -1,5 +1,5 @@
 'use client'
-
+import { SignedIn } from "@clerk/nextjs";
 import { useState, useCallback, useEffect, ReactNode, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { 
@@ -408,9 +408,11 @@ const formatInlineText = (text: string): (string | ReactNode)[] => {
             )}
 
             {/* Prompt Usage Display */}
-            <div className='p-6 rounded-2xl border border-purple-300/10 bg-black/30 shadow-[0_4px_20px_-10px] shadow-purple-200/30'>
-                <PromptUsageDisplay ref={promptUsageRef} />
-            </div>
+            <SignedIn>
+              <div className='p-6 rounded-2xl border border-purple-300/10 bg-black/30 shadow-[0_4px_20px_-10px] shadow-purple-200/30'>
+                  <PromptUsageDisplay ref={promptUsageRef} />
+              </div>
+            </SignedIn>
 
             {/* File upload and analysis section */}
             <div className='p-10 space-y-8 rounded-2xl border border-purple-300/10 bg-black/30 shadow-[0_4px_20px_-10px] shadow-purple-200/30'>
