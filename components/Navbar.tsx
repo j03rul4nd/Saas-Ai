@@ -20,10 +20,14 @@ interface MobileNavLinkProps {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false); // Cambiado a false por defecto
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
+    // Verificar el tema actual del documento al montar
+    const currentTheme = document.documentElement.classList.contains('dark');
+    setIsDark(currentTheme);
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -32,8 +36,15 @@ const Navbar = () => {
   }, []);
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
+    const newTheme = !isDark;
+    setIsDark(newTheme);
+    
+    // Aplicar el tema globalmente al document
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   const NavLink = ({ href, children, icon: Icon }: NavLinkProps) => (
@@ -58,12 +69,12 @@ const Navbar = () => {
   );
 
   return (
-    <div className={isDark ? 'dark' : ''}>
+    <>
       <nav className={`
         fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out
         ${isScrolled 
           ? 'bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-neutral-200/50 dark:border-neutral-800/50' 
-          : 'bg-white dark:bg-neutral-950'
+          : 'bg-white/90 dark:bg-neutral-950/90 backdrop-blur-sm'
         }
       `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,7 +87,7 @@ const Navbar = () => {
                   <div className="w-3 h-3 bg-white dark:bg-neutral-950 rounded-sm"></div>
                 </div>
                 <span className="text-lg font-semibold text-neutral-900 dark:text-white tracking-tight">
-                  Brand
+                  PDF Analyzer
                 </span>
               </Link>
             </div>
@@ -146,7 +157,7 @@ const Navbar = () => {
           md:hidden transition-all duration-300 ease-out overflow-hidden
           ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
         `}>
-          <div className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-sm">
             <div className="py-2">
               <MobileNavLink href="/" icon={Home}>Home</MobileNavLink>
               <MobileNavLink href="/pricing" icon={DollarSign}>Pricing</MobileNavLink>
@@ -181,7 +192,7 @@ const Navbar = () => {
 
       {/* Spacer for fixed navbar */}
       <div className="h-16"></div>
-    </div>
+    </>
   );
 };
 

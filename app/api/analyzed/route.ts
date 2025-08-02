@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     // Verificar autenticación
     const { userId } = await auth()
     if (!userId) {
-      throw new ApiError(401, 'No autorizado. Debes iniciar sesión para usar esta función.')
+      throw new ApiError(401, 'Unauthorised. You must log in to use this feature.')
     }
 
     const body = await request.json().catch(() => ({}))
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const promptLimitResult = await checkAndIncrementPromptUsage(userId)
     
     if (!promptLimitResult.canUse) {
-      throw new ApiError(429, `Has alcanzado tu límite mensual de ${promptLimitResult.monthlyLimit} prompts. El límite se restablecerá el ${promptLimitResult.nextResetDate.toLocaleDateString('es-ES')}.`)
+      throw new ApiError(429, `You have reached your monthly limit of ${promptLimitResult.monthlyLimit} prompts. The limit will reset on ${promptLimitResult.nextResetDate.toLocaleDateString('en-US')}.`);
     }
 
     const processedText = text.substring(0, PDF_PROCESSING.MAX_TEXT_LENGTH)
@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
             parts: [{
               text: `
                   Please analyze this document and provide an elegant, narrative summary with the following format:
-                  INSTRUCCIONES: Responde en el mismo idioma del documento. Mantén la respuesta concisa y profesional.
 
                   # Document Overview
                   Write a concise 2 sentence overview that captures the essence of the document. 

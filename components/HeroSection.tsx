@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FileText, Sparkles, ArrowRight, Play, Download, Zap, Brain, Clock } from "lucide-react";
+import { FileText, Sparkles, ArrowRight, Rocket, CreditCard, Zap, Brain, Clock } from "lucide-react";
 import { gsap } from "gsap";
 
 const HeroSection = () => {
@@ -17,56 +17,62 @@ const HeroSection = () => {
     setIsLoaded(true);
     
     // Initial hero animation
-    const tl = gsap.timeline({ delay: 0.2 });
+    const initialAnimation = () => {
+      const tl = gsap.timeline({ delay: 0.2 });
+      tl.from(titleRef.current, {
+        y: 60,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out"
+      })
+      .from(subtitleRef.current, {
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out"
+      }, "-=0.6")
+      .from(ctaRef.current, {
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out"
+      }, "-=0.4")
+      .from(featuresRef.current?.children || [], {
+        y: 20,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out"
+      }, "-=0.3");
+  
+      // Floating elements animation
+      floatingElementsRef.current.forEach((el, index) => {
+        if (el) {
+          gsap.to(el, {
+            y: "random(-20, 20)",
+            x: "random(-10, 10)",
+            rotation: "random(-5, 5)",
+            duration: "random(3, 5)",
+            repeat: -1,
+            yoyo: true,
+            ease: "power1.inOut",
+            delay: index * 0.5
+          });
+        }
+      });
+
+      return () => {
+        tl.kill();
+      };
+    }
     
-    tl.from(titleRef.current, {
-      y: 60,
-      opacity: 0,
-      duration: 1,
-      ease: "power3.out"
-    })
-    .from(subtitleRef.current, {
-      y: 40,
-      opacity: 0,
-      duration: 0.8,
-      ease: "power3.out"
-    }, "-=0.6")
-    .from(ctaRef.current, {
-      y: 30,
-      opacity: 0,
-      duration: 0.8,
-      ease: "power3.out"
-    }, "-=0.4")
-    .from(featuresRef.current?.children || [], {
-      y: 20,
-      opacity: 0,
-      duration: 0.6,
-      stagger: 0.1,
-      ease: "power2.out"
-    }, "-=0.3");
-
-    // Floating elements animation
-    floatingElementsRef.current.forEach((el, index) => {
-      if (el) {
-        gsap.to(el, {
-          y: "random(-20, 20)",
-          x: "random(-10, 10)",
-          rotation: "random(-5, 5)",
-          duration: "random(3, 5)",
-          repeat: -1,
-          yoyo: true,
-          ease: "power1.inOut",
-          delay: index * 0.5
-        });
-      }
-    });
-
-    return () => {
-      tl.kill();
-    };
+    //initialAnimation();
+    
+    
+    
   }, []);
 
-  const handleCTAHover = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCTAHover = (e: React.MouseEvent<HTMLAnchorElement>) => {
     gsap.to(e.currentTarget, {
       scale: 1.05,
       duration: 0.3,
@@ -83,7 +89,7 @@ const HeroSection = () => {
     }
   };
 
-  const handleCTALeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCTALeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
     gsap.to(e.currentTarget, {
       scale: 1,
       duration: 0.3,
@@ -144,83 +150,101 @@ const HeroSection = () => {
   );
 
   return (
-    <section
-      ref={heroRef}
-      className="relative min-h-screen bg-gradient-to-br from-neutral-50 via-blue-50/50 to-purple-50/50 dark:from-neutral-950 dark:via-blue-950/20 dark:to-purple-950/20 overflow-hidden flex items-center justify-center"
-    >
-      {/* Floating background elements */}
-      <FloatingElement icon={FileText} className="top-20 left-10" index={0} />
-      <FloatingElement icon={Brain} className="top-32 right-16" index={1} />
-      <FloatingElement icon={Sparkles} className="bottom-32 left-20" index={2} />
-      <FloatingElement icon={Zap} className="bottom-20 right-12" index={3} />
-      <FloatingElement icon={Clock} className="top-48 left-1/3" index={4} />
-
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
-      
-      {/* Main content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          
-          {/* Main title */}
-          <div className="mb-8">
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/25">
-                  <FileText size={28} className="text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                  <Sparkles size={12} className="text-white" />
-                </div>
-              </div>
-            </div>
-            
-            <h1
-              ref={titleRef}
-              className="text-5xl sm:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 mb-6 tracking-tight"
-            >
-              PDF Analyzer
-            </h1>
-          </div>
-
-          {/* Subtitle */}
-          <p
-            ref={subtitleRef}
-            className="text-xl sm:text-2xl lg:text-3xl text-neutral-600 dark:text-neutral-300 mb-12 max-w-4xl mx-auto leading-relaxed font-medium"
-          >
-            Transforma documentos extensos en 
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold"> resúmenes inteligentes </span>
-            con IA avanzada
-          </p>
-
-          {/* CTA Buttons */}
-          <div ref={ctaRef} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <button
-              onMouseEnter={handleCTAHover}
-              onMouseLeave={handleCTALeave}
-              className="group relative overflow-hidden px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
-            >
-              <span className="relative z-10 flex items-center gap-3">
-                <Play size={20} />
-                Probar Gratis
-                <ArrowRight size={18} className="cta-icon transition-transform duration-300" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-
-            <button className="flex items-center gap-3 px-8 py-4 text-lg font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors duration-300 group">
-              <Download size={20} className="group-hover:scale-110 transition-transform duration-300" />
-              Ver Demo
-            </button>
-          </div>
-
-          
-        </div>
+    <>
+      {/* Spline Background */}
+      <div className="spline-container fixed top-0 w-full h-screen -z-10">
+        <iframe 
+          src="https://my.spline.design/worldplanet-inmHh7fVCul1jUFrNRYlotVU" 
+          frameBorder="0" 
+          width="100%" 
+          height="100%" 
+          id="aura-spline"
+          className="pointer-events-none"
+        />
       </div>
 
-      {/* Bottom gradient overlay */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-neutral-950 to-transparent"></div>
-    </section>
+      <section
+        ref={heroRef}
+        className="relative min-h-screen bg-gradient-to-br from-neutral-50/80 via-blue-50/40 to-purple-50/40 dark:from-neutral-950/80 dark:via-blue-950/30 dark:to-purple-950/30 overflow-hidden flex items-center justify-center backdrop-blur-sm"
+      >
+        {/* Floating background elements */}
+        <FloatingElement icon={FileText} className="top-20 left-10" index={0} />
+        <FloatingElement icon={Brain} className="top-32 right-16" index={1} />
+        <FloatingElement icon={Sparkles} className="bottom-32 left-20" index={2} />
+        <FloatingElement icon={Zap} className="bottom-20 right-12" index={3} />
+        <FloatingElement icon={Clock} className="top-48 left-1/3" index={4} />
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
+        
+        {/* Content overlay for better readability */}
+        <div className="absolute inset-0 bg-white/10 dark:bg-black/20 backdrop-blur-[2px]"></div>
+        
+        {/* Main content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            
+            {/* Main title */}
+            <div className="mb-8">
+              <div className="flex items-center justify-center mb-6">
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/25">
+                    <FileText size={28} className="text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                    <Sparkles size={12} className="text-white" />
+                  </div>
+                </div>
+              </div>
+              
+              <h1
+                ref={titleRef}
+                className="text-5xl sm:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 mb-6 tracking-tight drop-shadow-sm"
+              >
+                PDF Analyzer
+              </h1>
+            </div>
+
+            {/* Subtitle */}
+            <p
+              ref={subtitleRef}
+              className="text-xl sm:text-2xl lg:text-3xl text-neutral-700 dark:text-neutral-200 mb-12 max-w-4xl mx-auto leading-relaxed font-medium drop-shadow-sm"
+            >
+              Transform lengthy documents into 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold"> intelligent summaries </span>
+              with advanced AI
+            </p>
+
+            {/* CTA Buttons */}
+            <div ref={ctaRef} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+              <a
+                href="/dashboard"
+                onMouseEnter={handleCTAHover}
+                onMouseLeave={handleCTALeave}
+                className="group relative overflow-hidden px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 inline-flex items-center"
+              >
+                <span className="relative z-10 flex items-center gap-3">
+                  <Rocket size={20} />
+                  Get Started
+                  <ArrowRight size={18} className="cta-icon transition-transform duration-300" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </a>
+
+              <a href="/pricing" className="flex items-center gap-3 px-8 py-4 text-lg font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white transition-colors duration-300 group bg-white/20 dark:bg-black/20 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-white/10">
+                <CreditCard size={20} className="group-hover:scale-110 transition-transform duration-300" />
+                View Pricing
+              </a>
+            </div>
+
+            
+          </div>
+        </div>
+
+        {/* Bottom gradient overlay */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white/80 dark:from-neutral-950/80 to-transparent"></div>
+      </section>
+    </>
   );
 };
 

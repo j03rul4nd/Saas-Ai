@@ -32,21 +32,20 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
         setLoading(true)
         setError(null)
         const response = await fetch('/api/prompt-usage')
-        
+
         if (!response.ok) {
           const errorData = await response.json()
-          throw new Error(errorData.message || 'Error al obtener el uso de prompts')
+          throw new Error(errorData.message || 'Error fetching prompt usage')
         }
 
         const data = await response.json()
         setUsageData(data)
-        
-        // Notificar al componente padre si se proporciona el callback
+
         if (onUpdate) {
           onUpdate(data)
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido')
+        setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
         setLoading(false)
         setIsRefreshing(false)
@@ -58,7 +57,6 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
       await fetchPromptUsage()
     }
 
-    // Exponer la función refresh al componente padre
     useImperativeHandle(ref, () => ({
       refresh
     }))
@@ -92,7 +90,7 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
     }
 
     const formatDate = (dateString: string) => {
-      return new Date(dateString).toLocaleDateString('es-ES', {
+      return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -111,7 +109,7 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
       }`}>
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-100">
-            Uso de Prompts Mensual
+            Monthly Prompt Usage
           </h3>
           <div className="flex items-center gap-2">
             {isRefreshing && (
@@ -122,14 +120,14 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
                 ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                 : 'bg-red-500/20 text-red-400 border border-red-500/30'
             }`}>
-              {usageData.canUse ? 'Disponible' : 'Límite alcanzado'}
+              {usageData.canUse ? 'Available' : 'Limit reached'}
             </span>
           </div>
         </div>
 
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-400 mb-2">
-            <span>Progreso</span>
+            <span>Progress</span>
             <span className="font-medium text-gray-200">{usageData.currentUsage} / {usageData.monthlyLimit}</span>
           </div>
           <div className="w-full bg-gray-800 rounded-full h-3 border border-gray-700">
@@ -142,13 +140,13 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
 
         <div className="grid grid-cols-2 gap-6 text-sm">
           <div className="bg-black/30 rounded-lg p-4 border border-gray-700/50">
-            <p className="text-gray-400 mb-1">Prompts restantes</p>
+            <p className="text-gray-400 mb-1">Remaining Prompts</p>
             <p className="text-2xl font-bold text-purple-300">
               {usageData.remainingPrompts}
             </p>
           </div>
           <div className="bg-black/30 rounded-lg p-4 border border-gray-700/50">
-            <p className="text-gray-400 mb-1">Próximo reset</p>
+            <p className="text-gray-400 mb-1">Next Reset</p>
             <p className="text-sm font-medium text-gray-200 leading-tight">
               {formatDate(usageData.nextResetDate)}
             </p>
@@ -158,7 +156,7 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
         {!usageData.canUse && (
           <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
             <p className="text-yellow-400 text-sm">
-              Has alcanzado tu límite mensual de prompts. El contador se restablecerá el {formatDate(usageData.nextResetDate)}.
+              You’ve reached your monthly prompt limit. Your quota will reset on {formatDate(usageData.nextResetDate)}.
             </p>
           </div>
         )}
@@ -166,7 +164,7 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
         {usageData.usagePercentage >= 75 && usageData.canUse && (
           <div className="mt-6 p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
             <p className="text-orange-400 text-sm">
-              Te quedan pocos prompts este mes. Considera actualizar tu plan para obtener más.
+              You’re running low on prompts this month. Consider upgrading your plan for more access.
             </p>
           </div>
         )}
@@ -177,4 +175,4 @@ const PromptUsageDisplay = forwardRef<PromptUsageDisplayRef, PromptUsageDisplayP
 
 PromptUsageDisplay.displayName = 'PromptUsageDisplay'
 
-export default PromptUsageDisplay 
+export default PromptUsageDisplay
